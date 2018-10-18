@@ -96,27 +96,33 @@ def depthFirstSearch(problem):
     """
     "*** YOUR CODE HERE ***"
     from util import Stack
+    #initializing a stack where the successors of the nodes will be stored
     successorsStack = Stack()
-
+    #Creating an empty list in order to keep track of all the nodes we have already visited (fringe)
     exploredNodes = []
-    #searchGraph = problem.getStartState()
+    #getting the starting state of the graph we search. The state is of type x,y
     nodeState = problem.getStartState()
-
+    #in the succesorStack we store tuples which are like (nodeState, [Path])
+    #the path at this point is 0 since we are at the starting node
     successorsStack.push((nodeState,[]))
 
     while not successorsStack.isEmpty():
 
         currentNode, path = successorsStack.pop()
+        #puth the node in the fringe
         exploredNodes.append(currentNode)
-        #print currentState
 
         #if the node is indeed a goal
         if problem.isGoalState(currentNode):
             return path
         else:
+            #in case the node is not our GoalState we call for its successors
             successors = problem.getSuccessors(currentNode)
             for successor in successors:
                 if successor[0] not in exploredNodes:
+                    #calculating the new path from the starting Node to the successor node
+                    # which is now in hand and about to be stored in the stack which will keep
+                    #"feeding" the while loop either till the stack is empty or we reach our goal
                     nPath = path + [successor[1]]
                     successorsStack.push((successor[0], nPath))
 
