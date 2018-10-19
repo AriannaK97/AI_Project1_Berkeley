@@ -104,20 +104,27 @@ def depthFirstSearch(problem):
     nodeState = problem.getStartState()
     #in the succesorStack we store tuples which are like (nodeState, [Path])
     #the path at this point is 0 since we are at the starting node
+    #iinitialize the frontier using the initial state of problem.
     successorsStack.push((nodeState,[]))
 
     while not successorsStack.isEmpty():
 
         currentNode, path = successorsStack.pop()
-        #puth the node in the fringe
+        #puth the node in the list of the explored nodes
         exploredNodes.append(currentNode)
 
         #if the node is indeed a goal
         if problem.isGoalState(currentNode):
             return path
         else:
-            #in case the node is not our GoalState we call for its successors
+
+            # in case the node is not our GoalState we call for its successors
+            #expand the chosen node , adding the resulting nodes to the
+            #frontier only if their state is not in the frontier or the
+            #explored set
+
             successors = problem.getSuccessors(currentNode)
+
             for successor in successors:
                 if successor[0] not in exploredNodes:
                     #calculating the new path from the starting Node to the successor node
@@ -137,7 +144,44 @@ def depthFirstSearch(problem):
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    from util import Queue
+    #initializing a stack where the successors of the nodes will be stored
+    frontier = Queue()
+    #Creating an empty list in order to keep track of all the nodes we have already visited (frontier)
+    exploredNodes = []
+    #getting the starting state of the graph we search. The state is of type x,y
+    nodeState = problem.getStartState()
+    #in the succesorStack we store tuples which are like (nodeState, [Path])
+    #the path at this point is 0 since we are at the starting node
+    #iinitialize the frontier using the initial state of problem.
+    frontier.push((nodeState,[]))
+
+    while not frontier.isEmpty():
+
+        currentNode, path = frontier.pop()
+        #puth the node in the list of the explored nodes
+        exploredNodes.append(currentNode)
+
+        #if the node is indeed a goal
+        if problem.isGoalState(currentNode):
+            return path
+        else:
+
+            # in case the node is not our GoalState we call for its successors
+            #expand the chosen node , adding the resulting nodes to the
+            #frontier only if their state is not in the frontier or the
+            #explored set
+
+            successors = problem.getSuccessors(currentNode)
+
+            for successor in successors:
+                if successor[0] not in (exploredNodes or  frontier):
+                    #calculating the new path from the starting Node to the successor node
+                    # which is now in hand and about to be stored in the stack which will keep
+                    #"feeding" the while loop either till the stack is empty or we reach our goal
+                    nPath = path + [successor[1]]
+                    frontier.push((successor[0], nPath))
+    #util.raiseNotDefined()
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
