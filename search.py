@@ -77,8 +77,15 @@ def tinyMazeSearch(problem):
 ###############################################################################################
 ###############################################################################################
 ###############################################################################################
-
-
+def node(problem, parent = None, action = None, path = 0):
+    STATE = problem.problem.getStartState()
+    PARENT = parent
+    ACTION = action
+    PATH_COST = parent.path + problem.stepCost(parent.STATE, action)
+    return (STATE, PARENT, ACTION, PATH_COST)
+###############################################################################################
+###############################################################################################
+###############################################################################################
 
 def depthFirstSearch(problem):
     """
@@ -101,20 +108,23 @@ def depthFirstSearch(problem):
     #Creating an empty list in order to keep track of all the nodes we have already visited (fringe)
     exploredNodes = []
     #getting the starting state of the graph we search. The state is of type x,y
-    nodeState = problem.getStartState()
+    #nodeState = problem.getStartState()
+    newNode = node(problem)
     #in the succesorStack we store tuples which are like (nodeState, [Path])
     #the path at this point is 0 since we are at the starting node
     #iinitialize the frontier using the initial state of problem.
-    successorsStack.push((nodeState,[]))
-
+    #successorsStack.push((nodeState,[]))
+    successorsStack.push(newNode)
     while not successorsStack.isEmpty():
 
-        currentNode, path = successorsStack.pop()
+        #currentNode, path = successorsStack.pop()
+        #state, parent, action, path = successorsStack.pop()
+        currentNode = node(successorsStack.pop())
         #puth the node in the list of the explored nodes
         exploredNodes.append(currentNode)
 
         #if the node is indeed a goal
-        if problem.isGoalState(currentNode):
+        if problem.isGoalState(currentNode[0]):
             return path
         else:
 
@@ -123,7 +133,7 @@ def depthFirstSearch(problem):
             #frontier only if their state is not in the frontier or the
             #explored set
 
-            successors = problem.getSuccessors(currentNode)
+            successors = problem.getSuccessors(currentNode[0])
 
             for successor in successors:
                 if successor[0] not in exploredNodes:
@@ -145,8 +155,8 @@ def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
     from util import Queue
-    #initializing a stack where the successors of the nodes will be stored
-    frontier = Queue()
+    #initializing a queue where the successors of the nodes will be stored the queueu is the fringe
+    fringe = Queue()
     #Creating an empty list in order to keep track of all the nodes we have already visited (frontier)
     exploredNodes = []
     #getting the starting state of the graph we search. The state is of type x,y
@@ -154,11 +164,11 @@ def breadthFirstSearch(problem):
     #in the succesorStack we store tuples which are like (nodeState, [Path])
     #the path at this point is 0 since we are at the starting node
     #iinitialize the frontier using the initial state of problem.
-    frontier.push((nodeState,[]))
+    fringe.push((nodeState,[]))
 
-    while not frontier.isEmpty():
+    while not fringe.isEmpty():
 
-        currentNode, path = frontier.pop()
+        currentNode, path = fringe.pop()
         #puth the node in the list of the explored nodes
         exploredNodes.append(currentNode)
 
@@ -180,12 +190,50 @@ def breadthFirstSearch(problem):
                     # which is now in hand and about to be stored in the stack which will keep
                     #"feeding" the while loop either till the stack is empty or we reach our goal
                     nPath = path + [successor[1]]
-                    frontier.push((successor[0], nPath))
+                    fringe.push((successor[0], nPath))
     #util.raiseNotDefined()
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
+    from util import PriorityQueue
+    #initializing a stack where the successors of the nodes will be stored
+    fringe = PriorityQueue()
+    #Creating an empty list in order to keep track of all the nodes we have already visited (frontier)
+    exploredNodes = []
+    #getting the starting state of the graph we search. The state is of type x,y
+    nodeState = problem.getStartState()
+    #in the succesorStack we store tuples which are like (nodeState, [Path])
+    #the path at this point is 0 since we are at the starting node
+    #iinitialize the fringe using the initial state of problem.
+    path  = 0
+    fringe.push((nodeState,[]), path)
+
+    while not fringe.isEmpty():
+
+        currentNode, path = fringe.pop()
+        #puth the node in the list of the explored nodes
+        exploredNodes.append(currentNode)
+
+        #if the node is indeed a goal
+        if problem.isGoalState(currentNode):
+            return path
+        else:
+
+            # in case the node is not our GoalState we call for its successors
+            #expand the chosen node , adding the resulting nodes to the
+            #frontier only if their state is not in the frontier or the
+            #explored set
+
+            successors = problem.getSuccessors(currentNode)
+
+            for successor in successors:
+                if successor[0] not in (exploredNodes or  fringe):
+                    #calculating the new path from the starting Node to the successor node
+                    # which is now in hand and about to be stored in the stack which will keep
+                    #"feeding" the while loop either till the stack is empty or we reach our goal
+                    nPath = path + [successor[1]]
+                    fringe.push((successor[0], nPath), nPath)
     util.raiseNotDefined()
 
 def nullHeuristic(state, problem=None):
@@ -197,7 +245,46 @@ def nullHeuristic(state, problem=None):
 
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
-    "*** YOUR CODE HERE ***"
+    from util import PriorityQueue
+    #initializing a stack where the successors of the nodes will be stored
+    fringe = PriorityQueue()
+    #Creating an empty list in order to keep track of all the nodes we have already visited (frontier)
+    exploredNodes = []
+    #getting the starting state of the graph we search. The state is of type x,y
+    nodeState = problem.getStartState()
+    #in the succesorStack we store tuples which are like (nodeState, [Path])
+    #the path at this point is 0 since we are at the starting node
+    #iinitialize the fringe using the initial state of problem.
+    heuristicPath  = heuristic
+    path = []
+    fringe.push((nodeState, path), heuristicPath)
+
+    while not fringe.isEmpty():
+
+        currentNode, path = fringe.pop()
+        #puth the node in the list of the explored nodes
+        exploredNodes.append(currentNode)
+
+        #if the node is indeed a goal
+        if problem.isGoalState(currentNode):
+            return path
+        else:
+
+            # in case the node is not our GoalState we call for its successors
+            #expand the chosen node , adding the resulting nodes to the
+            #frontier only if their state is not in the frontier or the
+            #explored set
+
+            successors = problem.getSuccessors(currentNode)
+
+            for successor in successors:
+                if successor[0] not in (exploredNodes or  fringe):
+                    #calculating the new path from the starting Node to the successor node
+                    # which is now in hand and about to be stored in the stack which will keep
+                    #"feeding" the while loop either till the stack is empty or we reach our goal
+                    nPath = path + [successor[1]]
+                    fringe.push((successor[0], nPath), heuristic)
+
     util.raiseNotDefined()
 
 
