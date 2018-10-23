@@ -103,138 +103,164 @@ def depthFirstSearch(problem):
     """
     "*** YOUR CODE HERE ***"
     from util import Stack
-    #initializing a stack where the successors of the nodes will be stored
-    successorsStack = Stack()
-    #Creating an empty list in order to keep track of all the nodes we have already visited (fringe)
-    exploredNodes = []
-    #getting the starting state of the graph we search. The state is of type x,y
-    #nodeState = problem.getStartState()
-    newNode = node(problem)
+
+    fringe = Stack()
+
+    exploredNodes = []  #All visited states
+    path = []   #the path followed from the start node
+
+    nodeState = problem.getStartState()
+
+    if problem.isGoalState(nodeState):
+        return path
+
     #in the succesorStack we store tuples which are like (nodeState, [Path])
     #the path at this point is 0 since we are at the starting node
     #iinitialize the frontier using the initial state of problem.
-    #successorsStack.push((nodeState,[]))
-    successorsStack.push(newNode)
-    while not successorsStack.isEmpty():
+    fringe.push((nodeState,path))
 
-        #currentNode, path = successorsStack.pop()
-        #state, parent, action, path = successorsStack.pop()
-        currentNode = node(successorsStack.pop())
-        #puth the node in the list of the explored nodes
-        exploredNodes.append(currentNode)
+    while (True):
 
-        #if the node is indeed a goal
-        if problem.isGoalState(currentNode[0]):
+        if fringe.isEmpty():
+            return []
+
+        currentNode, path = fringe.pop()
+        exploredNodes.append(currentNode)       #put the currentNode in the list of the explored nodes
+
+        #uncomment lines 133 and 134 so that the program works properly with the autograder
+        #and comment lines 144-145
+
+        if problem.isGoalState(currentNode):    #if the node is indeed a goal
             return path
-        else:
 
-            # in case the node is not our GoalState we call for its successors
-            #expand the chosen node , adding the resulting nodes to the
-            #frontier only if their state is not in the frontier or the
-            #explored set
+        #get currentNode's successors
+        successors = problem.getSuccessors(currentNode)
 
-            successors = problem.getSuccessors(currentNode[0])
-
+        if successors:
             for successor in successors:
                 if successor[0] not in exploredNodes:
-                    #calculating the new path from the starting Node to the successor node
-                    # which is now in hand and about to be stored in the stack which will keep
-                    #"feeding" the while loop either till the stack is empty or we reach our goal
+
+                    #comment here for the program to work right with the autograder
+                    #if problem.isGoalState(successor[0]):
+                    #   return path + [successor[1]]
+
                     nPath = path + [successor[1]]
-                    successorsStack.push((successor[0], nPath))
+                    fringe.push((successor[0], nPath))
 
 
-    return None
-
-
-
-
-    util.raiseNotDefined()
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
     from util import Queue
-    #initializing a queue where the successors of the nodes will be stored the queueu is the fringe
+
     fringe = Queue()
-    #Creating an empty list in order to keep track of all the nodes we have already visited (frontier)
-    exploredNodes = []
-    #getting the starting state of the graph we search. The state is of type x,y
+
+    exploredNodes = []  #All visited states
+    path = []   #the path followed from the start node
+
     nodeState = problem.getStartState()
+
+    if problem.isGoalState(nodeState):
+        return path
+
     #in the succesorStack we store tuples which are like (nodeState, [Path])
     #the path at this point is 0 since we are at the starting node
     #iinitialize the frontier using the initial state of problem.
-    fringe.push((nodeState,[]))
+    fringe.push((nodeState,path))
 
-    while not fringe.isEmpty():
+    while (True):
+
+        if fringe.isEmpty():
+            return []
 
         currentNode, path = fringe.pop()
-        #puth the node in the list of the explored nodes
-        exploredNodes.append(currentNode)
+        exploredNodes.append(currentNode)       #put the currentNode in the list of the explored nodes
 
-        #if the node is indeed a goal
-        if problem.isGoalState(currentNode):
+        #uncomment lines 182 and 183 so that the program works properly with the autograder
+
+        if problem.isGoalState(currentNode):    #if the node is indeed a goal
             return path
-        else:
 
-            # in case the node is not our GoalState we call for its successors
-            #expand the chosen node , adding the resulting nodes to the
-            #frontier only if their state is not in the frontier or the
-            #explored set
+        #get currentNode's successors
+        successors = problem.getSuccessors(currentNode)
 
-            successors = problem.getSuccessors(currentNode)
-
+        if successors:
             for successor in successors:
-                if successor[0] not in (exploredNodes or  frontier):
-                    #calculating the new path from the starting Node to the successor node
-                    # which is now in hand and about to be stored in the stack which will keep
-                    #"feeding" the while loop either till the stack is empty or we reach our goal
+                if successor[0] not in exploredNodes and successor[0] not in (state[0] for state in fringe.list):
+
+                    #comment here for the program to work right with the autograder
+                    #if problem.isGoalState(successor[0]):
+                    #   return path + [successor[1]]
+
                     nPath = path + [successor[1]]
                     fringe.push((successor[0], nPath))
-    #util.raiseNotDefined()
+
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
     from util import PriorityQueue
-    #initializing a stack where the successors of the nodes will be stored
-    fringe = PriorityQueue()
-    #Creating an empty list in order to keep track of all the nodes we have already visited (frontier)
-    exploredNodes = []
-    #getting the starting state of the graph we search. The state is of type x,y
-    nodeState = problem.getStartState()
-    #in the succesorStack we store tuples which are like (nodeState, [Path])
-    #the path at this point is 0 since we are at the starting node
-    #iinitialize the fringe using the initial state of problem.
-    path  = 0
-    fringe.push((nodeState,[]), path)
 
-    while not fringe.isEmpty():
+    fringe = PriorityQueue()
+
+
+    exploredNodes = []  #All visited states
+    path = []   #the path followed from the start node
+
+    nodeState = problem.getStartState()
+
+    #if problem.isGoalState(nodeState):
+        #return path
+
+    #the path cost at this point is 0 since we are exploring the first node of the graph
+    priority = 0
+    fringe.push((nodeState,path),priority)
+
+    while (True):
+
+        if fringe.isEmpty():
+            return []
 
         currentNode, path = fringe.pop()
-        #puth the node in the list of the explored nodes
-        exploredNodes.append(currentNode)
+        exploredNodes.append(currentNode)       #put the currentNode in the list of the explored nodes
 
-        #if the node is indeed a goal
-        if problem.isGoalState(currentNode):
+        #uncomment lines 182 and 183 so that the program works properly with the autograder
+
+        if problem.isGoalState(currentNode):    #if the node is indeed a goal
             return path
-        else:
 
-            # in case the node is not our GoalState we call for its successors
-            #expand the chosen node , adding the resulting nodes to the
-            #frontier only if their state is not in the frontier or the
-            #explored set
+        #get currentNode's successors
+        successors = problem.getSuccessors(currentNode)
 
-            successors = problem.getSuccessors(currentNode)
-
+        if successors:
             for successor in successors:
-                if successor[0] not in (exploredNodes or  fringe):
-                    #calculating the new path from the starting Node to the successor node
-                    # which is now in hand and about to be stored in the stack which will keep
-                    #"feeding" the while loop either till the stack is empty or we reach our goal
+                if (successor[0] not in exploredNodes and successor[0] not in (state[2][0] for state in fringe.heap)):
+
+                    #comment here for the program to work right with the autograder
+                    #if problem.isGoalState(successor[0]):
+                    #   return path + [successor[1]]
+
                     nPath = path + [successor[1]]
-                    fringe.push((successor[0], nPath), nPath)
-    util.raiseNotDefined()
+                    priority = problem.getCostOfActions(nPath)
+                    fringe.push((successor[0], nPath), priority)
+
+                #in case the node already exists in the fringe we check which one has the highest priority/path cost and
+                #peak the lowest one
+                elif (successor[0] not in exploredNodes and successor[0] in (state[2][0] for state in fringe.heap)):
+                    for state in fringe.heap:
+                        if (state[2][0] == successor[0]):
+                            fNodePriority = problem.getCostOfActions(state[2][1])
+                    succPriority = problem.getCostOfActions(path + [successor[1]])
+
+                    if(fNodePriority > succPriority):
+                        nPath = path + [successor[1]]
+                        fringe.update((successor[0], nPath), succPriority)
+
+
+
+def f(state, problem, heuristic):
+    return 0
 
 def nullHeuristic(state, problem=None):
     """
@@ -245,47 +271,67 @@ def nullHeuristic(state, problem=None):
 
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
+    "*** YOUR CODE HERE ***"
     from util import PriorityQueue
-    #initializing a stack where the successors of the nodes will be stored
-    fringe = PriorityQueue()
-    #Creating an empty list in order to keep track of all the nodes we have already visited (frontier)
-    exploredNodes = []
-    #getting the starting state of the graph we search. The state is of type x,y
-    nodeState = problem.getStartState()
-    #in the succesorStack we store tuples which are like (nodeState, [Path])
-    #the path at this point is 0 since we are at the starting node
-    #iinitialize the fringe using the initial state of problem.
-    heuristicPath  = heuristic
-    path = []
-    fringe.push((nodeState, path), heuristicPath)
 
-    while not fringe.isEmpty():
+    fringe = PriorityQueue()
+
+
+    exploredNodes = []  #All visited states
+    path = []   #the path followed from the start node
+
+    nodeState = problem.getStartState()
+
+    #if problem.isGoalState(nodeState):
+        #return path
+
+    #the path cost at this point is 0 since we are exploring the first node of the graph
+    priority = problem.getCostOfActions(path) + heuristic(nodeState, problem)
+    fringe.push((nodeState,path),priority)
+
+    while (True):
+
+        if fringe.isEmpty():
+            return []
 
         currentNode, path = fringe.pop()
-        #puth the node in the list of the explored nodes
-        exploredNodes.append(currentNode)
 
-        #if the node is indeed a goal
-        if problem.isGoalState(currentNode):
+        if currentNode in exploredNodes:
+            continue
+
+        exploredNodes.append(currentNode)       #put the currentNode in the list of the explored nodes
+
+        #uncomment lines 182 and 183 so that the program works properly with the autograder
+
+        if problem.isGoalState(currentNode):    #if the node is indeed a goal
             return path
-        else:
 
-            # in case the node is not our GoalState we call for its successors
-            #expand the chosen node , adding the resulting nodes to the
-            #frontier only if their state is not in the frontier or the
-            #explored set
+        #get currentNode's successors
+        successors = problem.getSuccessors(currentNode)
 
-            successors = problem.getSuccessors(currentNode)
-
+        if successors:
             for successor in successors:
-                if successor[0] not in (exploredNodes or  fringe):
-                    #calculating the new path from the starting Node to the successor node
-                    # which is now in hand and about to be stored in the stack which will keep
-                    #"feeding" the while loop either till the stack is empty or we reach our goal
-                    nPath = path + [successor[1]]
-                    fringe.push((successor[0], nPath), heuristic)
+                if (successor[0] not in exploredNodes):
 
-    util.raiseNotDefined()
+                    #comment here for the program to work right with the autograder
+                    #if problem.isGoalState(successor[0]):
+                    #   return path + [successor[1]]
+
+                    nPath = path + [successor[1]]
+                    priority = problem.getCostOfActions(nPath) + heuristic(successor[0],problem)
+                    fringe.push((successor[0], nPath), priority)
+
+                #in case the node already exists in the fringe we check which one has the highest priority/path cost and
+                #peak the lowest one
+                elif (successor[0] not in exploredNodes):
+                    for state in fringe.heap:
+                        if (state[2][0] == successor[0]):
+                            fNodePriority = problem.getCostOfActions(state[2][1])
+                    succPriority = problem.getCostOfActions(path + [successor[1]]) + heuristic(successor[0],problem)
+
+                    if(fNodePriority > succPriority):
+                        nPath = path + [successor[1]]
+                        fringe.update((successor[0], nPath), succPriority)
 
 
 # Abbreviations
