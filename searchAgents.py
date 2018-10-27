@@ -279,16 +279,16 @@ class CornersProblem(search.SearchProblem):
         """
         self.walls = startingGameState.getWalls()
         self.startingPosition = startingGameState.getPacmanPosition()
-        top, right = self.walls.height-2, self.walls.width-2
-        self.corners = ((1,1), (1,top), (right, 1), (right, top))
+        top, right = self.walls.height - 2, self.walls.width - 2
+        self.corners = ((1, 1), (1, top), (right, 1), (right, top))
         for corner in self.corners:
             if not startingGameState.hasFood(*corner):
                 print 'Warning: no food in corner ' + str(corner)
-        self._expanded = 0 # DO NOT CHANGE; Number of search nodes expanded
+        self._expanded = 0  # DO NOT CHANGE; Number of search nodes expanded
         # Please add any code here which you would like to use
         # in initializing the problem
         "*** YOUR CODE HERE ***"
-        self.stepCost = 1
+        self.goal  = []
 
 
     def getStartState(self):
@@ -297,25 +297,24 @@ class CornersProblem(search.SearchProblem):
         space)
         """
         "*** YOUR CODE HERE ***"
-        visitedCorners = []
-        return (self.startingPosition, visitedCorners)
-
+        notVisitedCorners = []
+        for i in self.corners:
+            notVisitedCorners.append(i)
+        return (self.startingPosition, notVisitedCorners)
 
     def isGoalState(self, state):
         """
         Returns whether this search state is a goal state of the problem.
         """
         "*** YOUR CODE HERE ***"
-        #isGoal = state
         currentNode = state[0]
-        visitedCorners = state[1]
-        if currentNode in self.corners:
-                if currentNode not in visitedCorners:
-                    visitedCorners.append(currentNode)
-                    return True
-        else :
+        notVisitedCorners = state[1]
+        if len(notVisitedCorners) == 0:
+            return True
+        else:
             return False
-        #util.raiseNotDefined()
+    # util.raiseNotDefined()
+
 
     def getSuccessors(self, state):
         """
@@ -329,7 +328,6 @@ class CornersProblem(search.SearchProblem):
         """
 
         successors = []
-        #print "I am here\n"
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
             # Add a successor state to the successor list if the action is legal
             # Here's a code snippet for figuring out whether a new position hits a wall:
@@ -340,20 +338,20 @@ class CornersProblem(search.SearchProblem):
 
             "*** YOUR CODE HERE ***"
             x, y = state[0]
-            visitedCorners = state[1]
+            notVisitedCorners = state[1][:]
             dx, dy = Actions.directionToVector(action)
             nextx, nexty = int(x + dx), int(y + dy)
-            nextNode = (nextx,nexty)
-            if (not self.walls[nextx][nexty]):
-                if nextNode in self.corners:
-                    if nextNode not in visitedCorners:
-                        visitedCorners.append(nextNode)
-
-                newState = (nextNode,visitedCorners)
-                cost = self.stepCost
+            hitsWall = self.walls[nextx][nexty]
+            nextNode = (nextx, nexty)
+            # check if the node is a valid move/does not hit on a wall
+            if not hitsWall:
+                if nextNode in notVisitedCorners:
+                    notVisitedCorners.remove(nextNode)
+                newState = (nextNode, notVisitedCorners)
+                cost = 1
                 successors.append((newState, action, cost))
 
-        self._expanded += 1 # DO NOT CHANGE
+        self._expanded += 1  # DO NOT CHANGE
         return successors
 
     def getCostOfActions(self, actions):
@@ -362,13 +360,24 @@ class CornersProblem(search.SearchProblem):
         include an illegal move, return 999999.  This is implemented for you.
         """
         if actions == None: return 999999
-        x,y= self.startingPosition
+        x, y = self.startingPosition
         for action in actions:
             dx, dy = Actions.directionToVector(action)
             x, y = int(x + dx), int(y + dy)
             if self.walls[x][y]: return 999999
         return len(actions)
 
+###########################################################################################
+###########################################################################################
+###########################################################################################
+###########################################################################################
+###########################################################################################
+
+
+def myManhattanHeuristic(position, goal):
+    xy1 = position
+    xy2 = goal
+    return ( (xy1[0] - xy2[0]) ** 2 + (xy1[1] - xy2[1]) ** 2 ) ** 0.5
 
 def cornersHeuristic(state, problem):
     """
@@ -392,20 +401,22 @@ def cornersHeuristic(state, problem):
         return 0
 
     else:
-        notVisitedCorners = []
         possibleCornerDist = []
-        visitedCorners = state[1]
+        notVisitedCorners = state[1][:]
         currentNode = state[0]
 
-        for corner in corners:
-            if corner not in visitedCorners:
-                notVisitedCorners.append(corner)
+        #for corner in corners:
+         #   if corner not in visitedCorners:
+          #      notVisitedCorners.append(corner)
 
         for corner in notVisitedCorners:
-            possibleCornerDist.append(manhattanHeuristic(currentNode,corner))
+            possibleCornerDist.append(myManhattanHeuristic(currentNode,corner))
             currentNode = corner
-            notVisitedCorners.remove(corner)
-        distance = min(possibleCornerDist)
+        print possibleCornerDist
+        #the function gives a better solution by choosing everytime the higher distance from the list of
+        #possible distances calculated. The maximum value we find in the list might be the greatest at this
+        #given moment, but overall the sum of all them give the best solution for the cornersHeuristic problem
+        distance = max(possibleCornerDist)
         return distance
 
 

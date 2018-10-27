@@ -184,17 +184,17 @@ def breadthFirstSearch(problem):
 
         #get currentNode's successors
         successors = problem.getSuccessors(currentNode)
-        print "Got the fucking successors\n"
+
         if successors:
             for successor in successors:
                 if successor[0] not in exploredNodes and successor[0] not in (state[0] for state in fringe.list):
-                    print successor[0],"\n"
                     #comment here for the program to work right with the autograder
                     #if problem.isGoalState(successor[0]):
                      #  return path + [successor[1]]
 
                     nPath = path + [successor[1]]
                     fringe.push((successor[0], nPath))
+
 
 
 def uniformCostSearch(problem):
