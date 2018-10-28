@@ -307,13 +307,11 @@ class CornersProblem(search.SearchProblem):
         Returns whether this search state is a goal state of the problem.
         """
         "*** YOUR CODE HERE ***"
-        currentNode = state[0]
         notVisitedCorners = state[1]
         if len(notVisitedCorners) == 0:
             return True
         else:
             return False
-    # util.raiseNotDefined()
 
 
     def getSuccessors(self, state):
@@ -373,7 +371,8 @@ class CornersProblem(search.SearchProblem):
 ###########################################################################################
 ###########################################################################################
 
-
+#calculating the manhattan distance between two coordinates
+#in this case between state and a corner
 def myManhattanHeuristic(position, goal):
     xy1 = position
     xy2 = goal
@@ -399,24 +398,24 @@ def cornersHeuristic(state, problem):
 
     if (problem.isGoalState(state)):
         return 0
-
     else:
+
         possibleCornerDist = []
         notVisitedCorners = state[1][:]
         currentNode = state[0]
 
-        #for corner in corners:
-         #   if corner not in visitedCorners:
-          #      notVisitedCorners.append(corner)
-
         for corner in notVisitedCorners:
+
             possibleCornerDist.append(myManhattanHeuristic(currentNode,corner))
             currentNode = corner
-        print possibleCornerDist
+
         #the function gives a better solution by choosing everytime the higher distance from the list of
         #possible distances calculated. The maximum value we find in the list might be the greatest at this
         #given moment, but overall the sum of all them give the best solution for the cornersHeuristic problem
+
         distance = max(possibleCornerDist)
+
+
         return distance
 
 
@@ -514,7 +513,28 @@ def foodHeuristic(state, problem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
-    return 0
+
+    foodDistance = []
+    problem.heuristicInfo['wallCount'] = problem.walls.count()
+    currentPosition = position
+    myFoodGrid = foodGrid.asList()
+
+    checked = 0 #every time the pacman has to choose between four positions near him
+
+    if problem.isGoalState(state):
+        return 0
+    else:
+        for food in myFoodGrid:
+            foodDistance.append(mazeDistance(currentPosition, food, problem.startingGameState))
+
+            if checked == 4 and problem.heuristicInfo['wallCount'] > 50:
+                break
+
+            checked = checked + 1
+
+        distance = max(foodDistance)
+        return distance
+
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
@@ -581,7 +601,17 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         x,y = state
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+
+        #the goal test we need is to check whether or not the state is in the list of food coordinates
+        #in the pacman grid. If it is then we caught our goal state and the function returns True. If not
+        #the function returns False.
+
+        if state in self.food.asList():
+            return True
+        else:
+            return False
+
+
 
 def mazeDistance(point1, point2, gameState):
     """
