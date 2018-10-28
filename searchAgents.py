@@ -288,6 +288,7 @@ class CornersProblem(search.SearchProblem):
         # Please add any code here which you would like to use
         # in initializing the problem
         "*** YOUR CODE HERE ***"
+
         self.goal  = []
 
 
@@ -565,7 +566,11 @@ class ClosestDotSearchAgent(SearchAgent):
         problem = AnyFoodSearchProblem(gameState)
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+
+        path = search.breadthFirstSearch(problem)
+
+        return path
+
 
 class AnyFoodSearchProblem(PositionSearchProblem):
     """
